@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 import torch
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 
 # Download the datasets if not downloaded
 train_dataset = datasets.MNIST(root="./mnist_dataset", download=True, transform=transforms.ToTensor(), train=True)
@@ -82,9 +80,6 @@ def compute_accuracy(model, dataloader):
     return correct / total_examples
 
 # Training Loop
-
-torch.set_default_device(device)
-print(f"the device is : {device}")
 torch.manual_seed(1)
 model = MNIST_Classifier(784, num_classes=10)
 acc = compute_accuracy(model, val_loader)
