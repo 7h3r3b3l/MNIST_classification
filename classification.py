@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+from tqdm import tqdm
 
 
 # Download the datasets if not downloaded
@@ -16,19 +17,19 @@ train_dataset, val_dataset = random_split(train_dataset, lengths=[50_000,10_000]
 
 train_loader = DataLoader(
         dataset= train_dataset,
-        batch_size = 32,
+        batch_size = 512,
         shuffle = True
 )
 
 test_loader = DataLoader(
         dataset= test_dataset,
-        batch_size = 32,
+        batch_size = 512,
         shuffle = True
 )
 
 val_loader = DataLoader(
         dataset= val_dataset,
-        batch_size = 32,
+        batch_size = 512,
         shuffle = True
 )
 
@@ -38,20 +39,16 @@ class MNIST_Classifier(torch.nn.Module):
     def __init__(self, num_features, num_classes):
         """
         The architecture is defined in the following way:
-        1. The Input Layer that connects with a Hidden Layer with 128 neurons
-        2. A hidden linear layer  that connects with the Output Layer with 25
-        Neurons
-        3. The Output Layer
         """
         super().__init__()
         self.all_layers = torch.nn.Sequential(
                 # First Layer
-                torch.nn.Linear(num_features, 128),
+                torch.nn.Linear(num_features, 50),
                 torch.nn.ReLU(),
-                # Second layer
-                torch.nn.Linear(128, 128),
+                # Hidden layers
+                torch.nn.Linear(50, 50),
                 torch.nn.ReLU(),
-                torch.nn.Linear(128, 25),
+                torch.nn.Linear(50, 25),
                 torch.nn.ReLU(),
                 # Output Layer
                 torch.nn.Linear(25, num_classes)
@@ -84,11 +81,11 @@ torch.manual_seed(1)
 model = MNIST_Classifier(784, num_classes=10)
 acc = compute_accuracy(model, val_loader)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
-num_epochs = 50
+num_epochs = 20
 loss_list = []
 train_acc_list, val_acc_list = [],[]
 
-for epoch in range(num_epochs):
+for epoch in tqdm(range(num_epochs)):
     model.train()
     for batch_idx, (features, labels) in enumerate(train_loader):
         logits = model(features)
@@ -96,8 +93,18 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        loss_list.append(loss.item())
 
     val_accuracy = compute_accuracy(model,val_loader )
     train_accuracy = compute_accuracy(model, train_loader)
+    train_acc_list.append(train_accuracy)
+    val_acc_list.append(val_accuracy)
     print(f"in epoch {epoch} loss is: {loss.detach()}, train_acc={train_accuracy}, val_acc={val_accuracy}")
+
+# Evaluate
+val_accuracy = compute_accuracy(model,val_loader )
+train_accuracy = compute_accuracy(model, train_loader)
+test_accuracy =  compute_accuracy(model, test_loader)
+
+print(f"Train: {train_accuracy}")
+print(f"Validation: {val_accuracy}")
+print(f"Test: {test_accuracy}")
