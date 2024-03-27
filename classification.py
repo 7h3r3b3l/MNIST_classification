@@ -8,6 +8,7 @@ import torch
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 torch.set_default_device(device)
+print("the device is : {device}")
 
 
 # Download the datasets if not downloaded
