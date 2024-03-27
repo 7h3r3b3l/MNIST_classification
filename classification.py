@@ -7,8 +7,6 @@ import pandas as pd
 import torch
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-torch.set_default_device(device)
-print(f"the device is : {device}")
 
 
 # Download the datasets if not downloaded
@@ -85,6 +83,8 @@ def compute_accuracy(model, dataloader):
 
 # Training Loop
 
+torch.set_default_device(device)
+print(f"the device is : {device}")
 torch.manual_seed(1)
 model = MNIST_Classifier(784, num_classes=10)
 acc = compute_accuracy(model, val_loader)
